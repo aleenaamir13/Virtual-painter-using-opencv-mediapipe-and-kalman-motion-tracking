@@ -3,9 +3,6 @@ import numpy as np
 import os
 import HandTrackingModule as htm
 
-# ======================
-# SETTINGS
-# ======================
 brushThickness = 25
 eraserThickness = 100
 
@@ -29,9 +26,7 @@ detector = htm.handDetector(detectionCon=0.78, maxHands=1)
 xp, yp = 0, 0
 imgCanvas = np.zeros((720, 1280, 3), np.uint8)
 
-# ======================
-# KALMAN FILTER
-# ======================
+# kalman filter
 kalman = cv2.KalmanFilter(4, 2, 0, cv2.CV_32F)
 
 kalman.measurementMatrix = np.array(
@@ -54,9 +49,6 @@ kalman.measurementNoiseCov = np.eye(2, dtype=np.float32) * 0.1
 initialized = False
 newStroke = True
 
-# ======================
-# MAIN LOOP
-# ======================
 while True:
 
     success, img = cap.read()
@@ -75,9 +67,6 @@ while True:
 
         fingers = detector.fingersUp()
 
-        # ======================
-        # INIT KALMAN
-        # ======================
         if not initialized:
             kalman.statePre = np.array(
                 [[float(x1)],
@@ -89,9 +78,7 @@ while True:
             kalman.statePost = kalman.statePre.copy()
             initialized = True
 
-        # ======================
-        # SELECTION MODE
-        # ======================
+        # Selection mode
         if fingers[1] and fingers[2]:
 
             newStroke = True
@@ -117,9 +104,7 @@ while True:
 
             cv2.rectangle(img, (x1, y1 - 25), (x2, y2 + 25), drawColor, cv2.FILLED)
 
-        # ======================
-        # DRAWING MODE
-        # ======================
+        # drawing mode
         elif fingers[1] and not fingers[2]:
 
             measurement = np.array(
@@ -167,9 +152,6 @@ while True:
             xp, yp = 0, 0
             newStroke = True
 
-    # ======================
-    # MERGE CANVAS
-    # ======================
     imgGray = cv2.cvtColor(imgCanvas, cv2.COLOR_BGR2GRAY)
 
     _, imgInv = cv2.threshold(imgGray, 50, 255, cv2.THRESH_BINARY_INV)
